@@ -29,7 +29,7 @@
 
 // Widths of the various displays
 #define kCPUPercentDisplayBorderWidth		2
-#define kCPUThermometerDisplayWidth			11.0f
+#define kCPUThermometerDisplayWidthDefault  11
 #define kCPUDisplayMultiProcGapWidth		5
 #define kCPULabelOnlyWidth         25
 
@@ -69,6 +69,7 @@
 #define kCPUTemperatureSensor                @"CPUTemperatureSensor"
 #define kCPUTemperatureSensorDefault                @"CPUTemperatureSensorDefault"
 #define kCPUTemperatureUnit                @"CPUTemperatureUnit"
+#define kCPUThermometerDisplayWidthPref    @"CPUDisplayThermometerWidth"
 #define kCPUTemperatureUnitCelsius 0
 #define kCPUTemperatureUnitFahrenheit 1
 // Display modes

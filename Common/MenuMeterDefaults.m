@@ -241,6 +241,11 @@
     return [self loadColorPref:kCPUTemperatureColor defaultValue:kCPUTemperatureColorDefault];
 } //cpuTemperatureColor
 
+- (int)cpuThermometerWidth {
+    return [self loadIntPref:kCPUThermometerDisplayWidthPref lowBound:1.0f highBound:64.0f
+                   defaultValue:kCPUThermometerDisplayWidthDefault];
+} //cpuThermometerWidth
+
 - (void)saveCpuInterval:(double)interval {
 	[self saveDoublePref:kCPUIntervalPref value:interval];
 } // saveCpuInterval
@@ -312,6 +317,10 @@
 - (void)saveCpuUserColor:(NSColor *)color {
 	[self saveColorPref:kCPUUserColorPref value:color];
 } // saveCpuUserColor
+
+- (void)saveCpuThermometerWidth:(int)width {
+    [self saveIntPref:kCPUThermometerDisplayWidthPref value:width];
+} // saveCpuThermometerWidth
 
 ///////////////////////////////////////////////////////////////
 //

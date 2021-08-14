@@ -590,6 +590,8 @@ static void scChangeCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, vo
 		[ourPrefs saveCpuSystemColor:[cpuSystemColor color]];
         } else if (sender == cpuTemperatureColor) {
                 [ourPrefs saveCpuTemperatureColor:[cpuTemperatureColor color]];
+        } else if (sender == cpuThermometerWidth) {
+            [ourPrefs saveCpuThermometerWidth: [cpuThermometerWidth intValue]];
 	} else if (!sender) {
 		// On first load handle multiprocs options
 		if (![self isMultiProcessor]) {

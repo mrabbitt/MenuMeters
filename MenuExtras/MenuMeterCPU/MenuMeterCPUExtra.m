@@ -175,19 +175,19 @@
     menuItem = (NSMenuItem *)[extraMenu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [menuItem setEnabled:NO];
 
-    
+
     // Add top kCPUrocessCountMax most CPU intensive processes
     menuItem = (NSMenuItem *)[extraMenu addItemWithTitle:[bundle localizedStringForKey:kProcessTitle value:nil table:nil]
                                                   action:nil
                                            keyEquivalent:@""];
     [menuItem setEnabled:NO];
-    
+
     // as this list is "static" unfortunately we need all of the kCPUrocessCountMax menu items and hide/show later the un-wanted/wanted ones
     for (NSInteger ndx = 0; ndx < kCPUrocessCountMax; ++ndx) {
         menuItem = (NSMenuItem *)[extraMenu addItemWithTitle:@"" action:nil keyEquivalent:@""];
         [menuItem setEnabled:NO];
     }
-    
+
 	// And the "Open Process Viewer"/"Open Activity Monitor" and "Open Console" item
 	[extraMenu addItem:[NSMenuItem separatorItem]];
 	menuItem = (NSMenuItem *)[extraMenu addItemWithTitle:[bundle localizedStringForKey:kOpenConsoleTitle value:nil table:nil]
@@ -274,7 +274,7 @@
 		// Loop by processor
 		int cpuDisplayModePrefs = [ourPrefs cpuDisplayMode];
         for (uint32_t cpuNum = 0; cpuNum < cpuCount; cpuNum+=stride) {
-			
+
 			// Render graph if needed
 			if (cpuDisplayModePrefs & kCPUDisplayGraph) {
 				[self renderHistoryGraphIntoImage:currentImage forProcessor:cpuNum atOffset:renderOffset];
@@ -292,7 +292,7 @@
 			}
 			if (cpuDisplayModePrefs & kCPUDisplayThermometer) {
 				[self renderThermometerIntoImage:currentImage forProcessor:cpuNum atOffset:renderOffset];
-				renderOffset += kCPUThermometerDisplayWidth;
+				renderOffset += [ourPrefs cpuThermometerWidth];
 			}
 			// At end of each proc adjust spacing
 			renderOffset += kCPUDisplayMultiProcGapWidth;
@@ -312,11 +312,11 @@
 	// Update the various displays starting with uptime
 	NSString *title = [NSString stringWithFormat:kMenuIndentFormat, [uptimeInfo uptime]];
 	if (title) LiveUpdateMenuItemTitle(extraMenu, kCPUUptimeInfoMenuIndex, title);
-    
+
 	// Tasks
 	title = [NSString stringWithFormat:kMenuIndentFormat, [cpuInfo currentProcessorTasks]];
 	if (title) LiveUpdateMenuItemTitle(extraMenu, kCPUTaskInfoMenuIndex, title);
-    
+
 	// Load
 	title = [NSString stringWithFormat:kMenuIndentFormat, [cpuInfo loadAverage]];
 	if (title) LiveUpdateMenuItemTitle(extraMenu, kCPULoadInfoMenuIndex, title);
@@ -324,9 +324,9 @@
     title = [NSString stringWithFormat:kMenuIndentFormat, [cpuInfo cpuPowerLimitStatus]];
     if (title) LiveUpdateMenuItemTitle(extraMenu, kCPUPowerLimitInfoMenuIndex, title);
 
-    
+
     // Top CPU intensive processes
-    NSArray* processes = ([ourPrefs cpuMaxProcessCount] > 0 ? [cpuTopProcesses runningProcessesByCPUUsage:[ourPrefs cpuMaxProcessCount]] : nil);    
+    NSArray* processes = ([ourPrefs cpuMaxProcessCount] > 0 ? [cpuTopProcesses runningProcessesByCPUUsage:[ourPrefs cpuMaxProcessCount]] : nil);
     LiveUpdateMenuItemTitleAndVisibility(extraMenu, kCPUProcessLabelMenuIndex, nil, (processes == nil));
     for (NSInteger ndx = 0; ndx < kCPUrocessCountMax; ++ndx) {
         if (ndx < processes.count) {
@@ -336,8 +336,8 @@
             NSMenuItem*mi=[extraMenu itemAtIndex: kCPUProcessMenuIndex + ndx];
             mi.title=title;
             mi.hidden=title.length==0;
-            
-            
+
+
             NSNumber* pid=processes[ndx][kProcessListItemPIDKey];
             NSRunningApplication*app=[NSRunningApplication runningApplicationWithProcessIdentifier:pid.intValue];
             NSImage*icon=app.icon;
@@ -355,7 +355,7 @@
             LiveUpdateMenuItemTitleAndVisibility(extraMenu, kCPUProcessMenuIndex + ndx, nil, YES);
         }
     }
-    
+
 	// Send the menu back to SystemUIServer
 	return extraMenu;
 
@@ -368,12 +368,12 @@
 ///////////////////////////////////////////////////////////////
 
 - (void)menuWillOpen:(NSMenu *)menu {
-    
+
     if ([ourPrefs cpuMaxProcessCount] > 0)
         [cpuTopProcesses startUpdateProcessList];
-     
+
     [super menuWillOpen:menu];
-    
+
 } // menuWillOpen:
 
 - (void)menuDidClose:(NSMenu *)menu {
@@ -450,7 +450,7 @@
     return cacheText;
 }
 - (void)renderSinglePercentIntoImage:(NSImage *)image forProcessor:(uint32_t)processor atOffset:(float)offset {
-    
+
 
 	// Current load (if available)
     double system=0,user=0;
@@ -546,11 +546,12 @@
 
 	// Paths
 	float thermometerTotalHeight = (float)[image size].height - 3.0f;
-	NSBezierPath *userPath = [NSBezierPath bezierPathWithRect:NSMakeRect(offset + 1.5f, 1.5f, kCPUThermometerDisplayWidth - 3,
+	float thermometerWidth = (float)[ourPrefs cpuThermometerWidth];
+	NSBezierPath *userPath = [NSBezierPath bezierPathWithRect:NSMakeRect(offset + 1.5f, 1.5f, thermometerWidth - 3,
 																		 thermometerTotalHeight * ((user + system) > 1 ? 1 : (user + system)))];
-	NSBezierPath *systemPath = [NSBezierPath bezierPathWithRect:NSMakeRect(offset + 1.5f, 1.5f, kCPUThermometerDisplayWidth - 3,
+	NSBezierPath *systemPath = [NSBezierPath bezierPathWithRect:NSMakeRect(offset + 1.5f, 1.5f, thermometerWidth - 3,
 																		  thermometerTotalHeight * system)];
-	NSBezierPath *framePath = [NSBezierPath bezierPathWithRect:NSMakeRect(offset + 1.5f, 1.5f, kCPUThermometerDisplayWidth - 3, thermometerTotalHeight)];
+	NSBezierPath *framePath = [NSBezierPath bezierPathWithRect:NSMakeRect(offset + 1.5f, 1.5f, thermometerWidth - 3, thermometerTotalHeight)];
 
 	// Draw
 	[image lockFocus];
@@ -756,7 +757,7 @@
             menuWidth += (([ourPrefs cpuAvgAllProcs] ? 1 : numberOfCPUs) * [ourPrefs cpuGraphLength]);
         }
         if ([ourPrefs cpuDisplayMode] & kCPUDisplayThermometer) {
-            menuWidth += (([ourPrefs cpuAvgAllProcs] ? 1 : numberOfCPUs) * kCPUThermometerDisplayWidth);
+            menuWidth += (([ourPrefs cpuAvgAllProcs] ? 1 : numberOfCPUs) * [ourPrefs cpuThermometerWidth]);
         }
         if (![ourPrefs cpuAvgAllProcs] && (numberOfCPUs > 1)) {
             menuWidth += ((numberOfCPUs - 1) * kCPUDisplayMultiProcGapWidth);
@@ -803,7 +804,7 @@
 		powerMate = nil;
 	}
 
-    
+
 	// Force initial update
     statusItem.button.image=self.image;
 } // configFromPrefs

@@ -58,6 +58,7 @@
 - (NSColor *)cpuSystemColor;
 - (NSColor *)cpuUserColor;
 - (NSColor *)cpuTemperatureColor;
+- (int)cpuThermometerWidth;
 - (void)saveCpuInterval:(double)interval;
 - (void)saveCpuDisplayMode:(int)mode;
 - (void)saveCpuPercentDisplay:(int)mode;
@@ -77,6 +78,7 @@
 - (void)saveCpuTemperatureColor:(NSColor *)color;
 - (void)saveCpuTemperatureUnit:(int)unit;
 - (void)saveCpuTemperatureSensor:(NSString*)name;
+- (void)saveCpuThermometerWidth:(int)width;
 
 // Disk menu prefs
 - (double)diskInterval;

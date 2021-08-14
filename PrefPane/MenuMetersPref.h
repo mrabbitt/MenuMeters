@@ -82,6 +82,7 @@ NSWindowController<NSWindowDelegate>
 	IBOutlet NSTextField			*cpuUserColorLabel;
 	IBOutlet NSColorWell			*cpuSystemColor;
 	IBOutlet NSTextField			*cpuSystemColorLabel;
+    IBOutlet NSSlider               *cpuThermometerWidth;
 	// Disk pane controls
 	IBOutlet NSButton				*diskMeterToggle;
 	IBOutlet NSPopUpButton			*diskImageSet;
